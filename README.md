@@ -30,3 +30,6 @@ The training script prints metrics and writes `model.joblib`. The API loads that
 
 ## Stack
 Python · pandas · NumPy · scikit-learn · joblib · FastAPI · pytest
+
+## Experiment tracking extension (optional)
+Install `pip install -r requirements-tracking.txt`, then run `python experiment_tracking.py --tracker mlflow` for local **MLflow** metrics or `python experiment_tracking.py --tracker wandb` for **Weights & Biases** (requires your W&B account configuration). `--tracker none` runs without logging. The extension trains a reproducible, class-weighted synthetic-data baseline and logs ROC-AUC/PR-AUC with configuration metadata. It does not upload raw transactions. This is separate from the primary `train.py` pipeline; no production tracking is claimed.
