@@ -7,7 +7,7 @@ Never log raw transaction records or secrets. Usage:
 import argparse
 from sklearn.datasets import make_classification
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import average_precision_score, roc_auc_score
+from sklearn.metrics import average_precision_score, roc_auc_score, brier_score_loss, log_loss
 from sklearn.model_selection import train_test_split
 
 
@@ -20,7 +20,10 @@ def run_experiment(tracker: str = "mlflow", seed: int = 42) -> dict:
     model.fit(X_train, y_train)
     scores = model.predict_proba(X_test)[:, 1]
     metrics = {"roc_auc": float(roc_auc_score(y_test, scores)),
-               "pr_auc": float(average_precision_score(y_test, scores))}
+               "pr_auc": float(average_precision_score(y_test, scores)),
+               "brier_score": float(brier_score_loss(y_test, scores)),
+               "log_loss": float(log_loss(y_test, scores)),
+               "positive_base_rate": float(y_test.mean())}
     config = {"seed": seed, "class_weight": "balanced", "samples": len(y)}
     if tracker == "mlflow":
         import mlflow
