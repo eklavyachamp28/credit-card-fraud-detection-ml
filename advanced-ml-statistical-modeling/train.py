@@ -52,7 +52,9 @@ def train(trials=12, seed=42, explain=True, track=True):
             colsample_bytree=trial.suggest_float("colsample_bytree", 0.7, 1.0))
         scores = []
         for train_ids, val_ids in cv.split(dev_x, dev_y):
-            model = XGBClassifier(**params, scale_pos_weight=imbalance,
+            fold_y = dev_y[train_ids]
+            fold_imbalance = (len(fold_y) - fold_y.sum()) / max(1, fold_y.sum())
+            model = XGBClassifier(**params, scale_pos_weight=fold_imbalance,
                 eval_metric="logloss", random_state=seed, n_jobs=1)
             model.fit(dev_x[train_ids], dev_y[train_ids])
             scores.append(average_precision_score(
@@ -73,6 +75,7 @@ def train(trials=12, seed=42, explain=True, track=True):
     metrics = dict(pr_auc=float(average_precision_score(test_y, a)),
         roc_auc=float(roc_auc_score(test_y, a)),
         baseline_pr_auc=float(average_precision_score(test_y, b)),
+        pr_auc_difference=float(average_precision_score(test_y, a) - average_precision_score(test_y, b)),
         pr_auc_ci95=bootstrap_ci(test_y, a),
         paired_permutation_p=float(permutation_p(test_y, a, b)),
         cv_pr_auc=float(study.best_value))
